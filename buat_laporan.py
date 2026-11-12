@@ -9,6 +9,9 @@ import re
 
 from docx import Document
 from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.opc.constants import RELATIONSHIP_TYPE as RT
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
 from docx.shared import Cm, Pt
 
 
@@ -17,6 +20,24 @@ ROOT = Path(__file__).resolve().parent
 
 def plain(text):
     return re.sub(r"[*`]", "", text).strip()
+
+
+def add_link(paragraph, url):
+    """Simpan sebagai hyperlink Word sungguhan, bukan sekadar teks URL."""
+    relationship_id = paragraph.part.relate_to(url, RT.HYPERLINK, is_external=True)
+    link = OxmlElement("w:hyperlink")
+    link.set(qn("r:id"), relationship_id)
+    run = OxmlElement("w:r")
+    properties = OxmlElement("w:rPr")
+    style = OxmlElement("w:rStyle")
+    style.set(qn("w:val"), "Hyperlink")
+    properties.append(style)
+    run.append(properties)
+    text = OxmlElement("w:t")
+    text.text = url
+    run.append(text)
+    link.append(run)
+    paragraph._p.append(link)
 
 
 def main():
@@ -62,6 +83,9 @@ def main():
             doc.add_heading(plain(line[3:]), 1)
         elif line.startswith("> "):
             doc.add_paragraph(plain(line[2:]), style="Subtitle")
+        elif line.startswith("- Link GitHub: "):
+            paragraph = doc.add_paragraph("Link GitHub: ", style="List Bullet")
+            add_link(paragraph, plain(line.split(": ", 1)[1]))
         elif line.startswith("- "):
             doc.add_paragraph(plain(line[2:]), style="List Bullet")
         else:
