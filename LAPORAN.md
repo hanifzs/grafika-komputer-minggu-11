@@ -9,7 +9,7 @@
 - NIM: **[isi NIM]**
 - Kelas: **[isi kelas]**
 - Mata kuliah: Grafika Komputer, Minggu 11
-- Link GitHub: **[isi setelah push ke repository]**
+- Link GitHub: **https://github.com/hanifzs/grafika-komputer-minggu-11**
 
 ## Dasar teori dan formulasi
 
